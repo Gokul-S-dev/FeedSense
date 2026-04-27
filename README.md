@@ -28,6 +28,8 @@ Note: The backend service is currently a work in progress and does not expose a 
 3. The project processes that feedback for a short summary and sentiment understanding.
 4. The result is intended to help teams quickly understand what matters most.
 
+![Alt Text](image\diagram.png)
+
 ## Why This Project Matters
 
 - Saves time when reviewing large volumes of comments.
