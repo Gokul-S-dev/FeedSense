@@ -185,7 +185,7 @@ The admin dashboard UI is shown here:
 ### 1. Submit feedback
 
 ```text
-POST https://8ur8lkoioe.execute-api.us-east-1.amazonaws.com/deploy
+POST https://amazonaws.com/deploy
 ```
 
 Used by the frontend feedback form.
@@ -193,7 +193,7 @@ Used by the frontend feedback form.
 ### 2. View admin feedback
 
 ```text
-GET https://4tn7afy6zb.execute-api.eu-north-1.amazonaws.com/default/Admin-feedback-summarizer
+GET https://amazonaws.com/default/Admin-feedback-summarizer
 ```
 
 Used by the admin dashboard to load categorized feedback.
