@@ -207,15 +207,20 @@ Used by the admin dashboard to load categorized feedback.
 - Amazon Bedrock
 - DynamoDB
 - Vanilla HTML, CSS, and JavaScript for the admin dashboard
-
+  
+## AWS Service used
+- AWS Lambda
+- Amazon Bedrocks
+- DynamoDB
+- AWS Amplify
 ## Notes
 
 - The frontend and admin dashboard are separate experiences.
 - The frontend is the user-facing submission form.
-
-### AWS Cloud is required for this project 
 - The admin dashboard is the review interface for sentiment-based analysis.
 - If you replace either API endpoint, update both the code and this README.
+  
+### AWS Cloud is required for this project 
 
 ## License
 
