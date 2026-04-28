@@ -1,172 +1,219 @@
 # Feedback Summarizer with AI
 
-## Project Summary
+Feedback Summarizer with AI is a full-stack feedback collection and analysis project. It lets users submit written feedback, sends that feedback to an AI-powered backend for summarization and sentiment analysis, stores or reads results from DynamoDB, and provides an admin dashboard for reviewing feedback by sentiment.
 
-Feedback Summarizer with AI is a project that helps collect written feedback and turn it into clear, short insights. Instead of reading many long comments one by one, the idea is to quickly understand what people are saying and the general mood behind it.
+## Project Overview
 
-This project is focused on making feedback easier to review, easier to act on, and less time-consuming for teams.
+The project currently has three main surfaces:
 
-## Purpose
+- A React frontend for collecting feedback from users.
+- A Python AWS Lambda backend for generating summaries and sentiment.
+- A standalone Admin Dashboard for viewing feedback records and filtering them by sentiment.
 
+The current user flow is:
 
-## Current Scope
+1. A user enters feedback in the React form.
+2. The frontend submits the feedback to the POST API.
+3. The backend sends the feedback to Amazon Bedrock for AI analysis.
+4. The feedback data is available for admin review through the GET API and dashboard.
+5. The admin dashboard shows Positive, Negative, and Neutral feedback cards with counts.
 
+## Project Structure
 
-Note: The backend service is currently a work in progress and does not expose a completed endpoint yet.
+- `frontend/` - React + Vite user interface for submitting feedback.
+- `backend/lambda.py` - POST Lambda that analyzes feedback with Amazon Bedrock.
+- `backend/admin.py` - GET Lambda that reads categorized feedback from DynamoDB.
+- `admin.html` - Single-file admin dashboard built with HTML, CSS, and JavaScript.
+- `image/` - Project screenshots and architecture diagrams.
 
-## Typical User Flow
+## Frontend
 
-1. A user writes feedback.
-2. The feedback is submitted through the app.
-3. The project processes that feedback for a short summary and sentiment understanding.
-4. The result is intended to help teams quickly understand what matters most.
+The frontend is a React app built with Vite. It currently renders the `Input` component, which provides the user feedback form.
 
-![Alt Text](image\diagram.png)
+### What the form does
 
-## Why This Project Matters
+- Accepts user feedback text.
+- Shows a live character counter.
+- Displays loading, success, and error states.
+- Submits the feedback with Axios.
+- Uses a minimum feedback length of 10 characters.
 
+### Frontend API endpoint
 
-## Future Direction
+The form submits feedback to:
 
-
-## License
-
-No license file is currently included in this repository.
-
----
-
-## Feedback Admin Dashboard
-
-A responsive, production-ready admin interface for managing and analyzing collected feedback in real time.
-
-### Overview
-
-The Feedback Admin Dashboard provides teams with a unified view of all collected feedback, organized by sentiment analysis. It enables quick filtering, intuitive navigation, and immediate insights into user sentiment distribution without requiring any page reloads.
-
-![Feedback Admin Dashboard](image/FeedbackAdminDashboard.png)
-
-The dashboard displays real-time sentiment metrics and a scrollable list of all feedback items with their summaries, allowing administrators to quickly identify trends and prioritize responses based on sentiment categories.
-
-### Key Features
-
-#### 1. **Sentiment-Based Organization**
-The dashboard automatically categorizes all feedback into three distinct sentiment buckets:
-- **Positive Feedback** (Green) - Constructive and favorable comments
-- **Negative Feedback** (Red) - Critical and problematic feedback
-- **Neutral Feedback** (Gray) - Objective observations and general comments
-
-Each category displays a live count of items within that sentiment group, making it easy to track sentiment distribution at a glance.
-
-#### 2. **Interactive Category Filtering**
-- Click any category card (Positive, Negative, or Neutral) to instantly filter the feedback list
-- Click the active category again to return to the "All Feedback" view
-- Smooth transitions and visual feedback indicate the current filter state
-- No page reload required—filtering happens instantly on the client side
-
-#### 3. **Rich Feedback Display**
-Each feedback item in the list displays:
-- **Feedback Text** - The original user comment
-- **Summary** - AI-generated concise summary of the feedback
-- **Sentiment Badge** - Visual indicator (color-coded by sentiment)
-- **Timestamp** - Creation date and time in human-readable format
-
-#### 4. **Smart Data Management**
-- Feedback items are automatically sorted by most recent first
-- Real-time count updates as data is fetched from the API
-- Graceful handling of empty states with user-friendly messages
-- Loading indicators during API calls for transparency
-- Error recovery with retry functionality
-
-### Technical Specifications
-
-**File Location:** `admin.html` (Single-file solution with embedded HTML, CSS, and JavaScript)
-
-**API Endpoint:**
+```text
+POST https://8ur8lkoioe.execute-api.us-east-1.amazonaws.com/deploy
 ```
+
+### Frontend implementation notes
+
+- `frontend/src/App.jsx` renders the `Input` component.
+- `frontend/src/components/Input.jsx` handles form state, submission, and notifications.
+- `frontend/src/components/Input.css` contains the feedback form styling.
+- `frontend/src/App.css` and `frontend/src/index.css` support the overall app styling.
+
+### Run the frontend locally
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Backend
+
+The backend uses AWS Lambda and boto3.
+
+### `backend/lambda.py`
+
+This Lambda:
+
+- Accepts feedback in the request body.
+- Handles `OPTIONS` requests for CORS.
+- Normalizes raw JSON or plain text input.
+- Sends a prompt to Amazon Bedrock Nova Micro.
+- Returns a JSON response containing the AI-generated result.
+
+### Bedrock behavior
+
+The backend prompt requests:
+
+- A short summary
+- A sentiment label: Positive, Neutral, or Negative
+
+### `backend/admin.py`
+
+This Lambda:
+
+- Reads from the DynamoDB table `FeedSenseFeedback`.
+- Scans stored feedback records.
+- Groups items into positive, negative, and neutral buckets.
+- Returns counts and categorized arrays in a dashboard-friendly response.
+
+### Admin API endpoint
+
+The admin dashboard expects:
+
+```text
 GET https://4tn7afy6zb.execute-api.eu-north-1.amazonaws.com/default/Admin-feedback-summarizer
 ```
 
-**Expected API Response Format:**
+### Expected admin response shape
+
 ```json
 {
-  "total": 18,
-  "positive_count": 10,
-  "negative_count": 3,
-  "neutral_count": 5,
-  "positive": [
-	 {
-		"id": "uuid",
-		"feedback": "User's original feedback text",
-		"summary": "Concise AI-generated summary",
-		"sentiment": "positive",
-		"createdAt": "2026-04-28T12:30:00Z"
-	 }
-  ],
-  "negative": [{ ... }],
-  "neutral": [{ ... }]
+  "total": 3,
+  "positive_count": 1,
+  "negative_count": 1,
+  "neutral_count": 1,
+  "positive": [],
+  "negative": [],
+  "neutral": []
 }
 ```
 
-### User Interface Design
+## Admin Dashboard
 
-**Layout Components:**
-1. **Header Section** - Dashboard title and subtitle
-2. **Category Cards Row** - Three clickable sentiment filter buttons with live counts
-3. **Feedback List Section** - Scrollable container showing filtered feedback items
+The admin dashboard is a single-file HTML page in `admin.html`. It is designed for quick review of categorized feedback without any build step.
 
-**Responsive Design:**
-- Full desktop experience on screens 900px and wider
-- Adapted single-column layout on mobile devices
-- Optimized scrollable area for all screen sizes
-- Touch-friendly button sizes for mobile interaction
+### Features
 
-**Color Scheme:**
-- Positive: Green (#16a34a)
-- Negative: Red (#dc2626)
-- Neutral: Gray (#6b7280)
-- Background: Light Gray (#f4f6f9)
-- Cards: White (#ffffff)
+- Displays three clickable sentiment cards.
+- Shows the current count for Positive, Negative, and Neutral feedback.
+- Filters feedback instantly when a category card is clicked.
+- Defaults to showing all feedback items on page load.
+- Displays each feedback item with text, summary, sentiment, and created date.
+- Shows a loading state while fetching data.
+- Shows an error state with retry support if the API request fails.
+- Uses responsive layout, rounded cards, hover effects, and smooth transitions.
 
-### How to Use
+### Dashboard styling
 
-1. **Access the Dashboard**
-	- Open `admin.html` in any modern web browser
-	- The dashboard will automatically load feedback data from the API on page load
+- Background: `#f4f6f9`
+- Cards: white
+- Positive: green
+- Negative: red
+- Neutral: gray
 
-2. **View All Feedback**
-	- The default view displays all feedback items sorted by most recent
-	- Scroll through the list to review all submissions
+### How the dashboard works
 
-3. **Filter by Sentiment**
-	- Click any category card (Positive, Negative, or Neutral) to view only that sentiment type
-	- The count badges update dynamically to show how many items are in each category
-	- Click an active category again to return to the full feedback view
+1. The page loads and fetches feedback from the admin API.
+2. The response is split into positive, negative, and neutral arrays.
+3. The dashboard builds a combined list for the default All Feedback view.
+4. Clicking a category card changes the active filter without reloading the page.
+5. Clicking the active card again returns to the full list.
 
-4. **Review Individual Items**
-	- Each feedback card displays the original text, AI-generated summary, sentiment label, and timestamp
-	- Hover over cards for subtle visual feedback indicating interactivity
+### Open the dashboard
 
-### Features Under the Hood
+Open `admin.html` directly in a browser or serve it from a local static server.
 
-- **Pure Vanilla JavaScript** - No frameworks or external dependencies required
-- **Async/Await API Integration** - Non-blocking data fetching with proper error handling
-- **Event Delegation** - Efficient event listener management for category filters
-- **HTML Sanitization** - XSS protection through proper HTML escaping
-- **Localized Date Formatting** - Timestamps displayed in user's local timezone
-- **Accessibility** - ARIA labels, semantic HTML, and keyboard-navigable interface
-- **Loading States** - Spinner animation and retry mechanism for failed requests
+## Images
 
-### Production Readiness
+The repository includes several images that document the product, architecture, and UI. They are referenced below in context so the README acts as the main project guide.
 
-✓ Single self-contained file (no build process needed)
-✓ Cross-browser compatible
-✓ Secure input handling and XSS prevention
-✓ Responsive and mobile-friendly
-✓ Professional UI with smooth animations
-✓ Error handling and user feedback
-✓ Performance optimized with minimal repaints
-✓ Accessibility compliant
-✓ Well-commented, readable code
+### Architecture and system flow
+
+The main architecture diagram is shown here:
+
+![Project architecture](image/diagram.png)
+
+The database structure and storage model are shown here:
+
+![Database structure](image/DB-Structure.png)
+
+The backend processing logic is shown here:
+
+![Backend logic](image/adminlogic.png)
+
+### User interface screenshots
+
+The user feedback form is shown here:
+
+![User feedback form](image/UserUI.png)
+
+The summarized feedback view is shown here:
+
+![Feedback summary view](image/feedback-summary.png)
+
+The admin dashboard UI is shown here:
+
+![Admin dashboard](image/FeedbackAdminDashboard.png)
+
+## API Summary
+
+### 1. Submit feedback
+
+```text
+POST https://8ur8lkoioe.execute-api.us-east-1.amazonaws.com/deploy
+```
+
+Used by the frontend feedback form.
+
+### 2. View admin feedback
+
+```text
+GET https://4tn7afy6zb.execute-api.eu-north-1.amazonaws.com/default/Admin-feedback-summarizer
+```
+
+Used by the admin dashboard to load categorized feedback.
+
+## Tech Stack
+
+- React 19
+- Vite
+- Axios
+- Python AWS Lambda
+- Amazon Bedrock
+- DynamoDB
+- Vanilla HTML, CSS, and JavaScript for the admin dashboard
+
+## Notes
+
+- The frontend and admin dashboard are separate experiences.
+- The frontend is the user-facing submission form.
+- The admin dashboard is the review interface for sentiment-based analysis.
+- If you replace either API endpoint, update both the code and this README.
 
 ## License
 
