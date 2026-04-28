@@ -43,7 +43,7 @@ The frontend is a React app built with Vite. It currently renders the `Input` co
 The form submits feedback to:
 
 ```text
-POST https://8ur8lkoioe.execute-api.us-east-1.amazonaws.com/deploy
+POST https://amazonaws.com/deploy
 ```
 
 ### Frontend implementation notes
@@ -96,7 +96,7 @@ This Lambda:
 The admin dashboard expects:
 
 ```text
-GET https://4tn7afy6zb.execute-api.eu-north-1.amazonaws.com/default/Admin-feedback-summarizer
+GET https://amazonaws.com/default/Admin-feedback-summarizer
 ```
 
 ### Expected admin response shape
@@ -212,6 +212,8 @@ Used by the admin dashboard to load categorized feedback.
 
 - The frontend and admin dashboard are separate experiences.
 - The frontend is the user-facing submission form.
+
+### AWS Cloud is required for this project 
 - The admin dashboard is the review interface for sentiment-based analysis.
 - If you replace either API endpoint, update both the code and this README.
 
