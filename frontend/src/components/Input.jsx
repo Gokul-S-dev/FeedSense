@@ -27,7 +27,17 @@ const Input = () => {
         setSuccess(false);
 
         try {
-            const res = await axios.post("/api/feedback", { feedback: feedback });
+const res = await axios.post(
+  "https://8ur8lkoioe.execute-api.us-east-1.amazonaws.com/deploy",
+  {
+    feedback: feedback
+  },
+  {
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }
+);
             console.log(res.data);
             setSuccess(true);
             setFeedback("");

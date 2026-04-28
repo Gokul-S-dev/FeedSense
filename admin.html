@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feedback Admin Dashboard</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+
+      --positive: #16a34a;
+      --positive-soft: #dcfce7;
+
+      --negative: #dc2626;
+      --negative-soft: #fee2e2;
+
+      --neutral: #6b7280;
+      --neutral-soft: #f3f4f6;
+
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --transition: 220ms ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(circle at top right, #ffffff 0%, #f4f6f9 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .dashboard {
+      width: min(1200px, 94vw);
+      margin: 28px auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .header {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 22px 24px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: clamp(1.4rem, 2.1vw, 2rem);
+      letter-spacing: 0.3px;
+    }
+
+    .header p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(170px, 1fr));
+      gap: 16px;
+    }
+
+    .category-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      cursor: pointer;
+      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+      outline: none;
+      text-align: left;
+    }
+
+    .category-card:hover,
+    .category-card:focus-visible {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    .category-card.active {
+      border-width: 2px;
+      transform: translateY(-2px);
+    }
+
+    .category-card .label {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .category-card .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .category-card.positive .value,
+    .category-card.positive.active {
+      color: var(--positive);
+      border-color: var(--positive);
+      background: linear-gradient(180deg, #ffffff 0%, var(--positive-soft) 100%);
+    }
+
+    .category-card.negative .value,
+    .category-card.negative.active {
+      color: var(--negative);
+      border-color: var(--negative);
+      background: linear-gradient(180deg, #ffffff 0%, var(--negative-soft) 100%);
+    }
+
+    .category-card.neutral .value,
+    .category-card.neutral.active {
+      color: var(--neutral);
+      border-color: var(--neutral);
+      background: linear-gradient(180deg, #ffffff 0%, var(--neutral-soft) 100%);
+    }
+
+    .list-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      min-height: 420px;
+    }
+
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .list-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .list-header .meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .feedback-list {
+      overflow: auto;
+      max-height: 60vh;
+      padding-right: 4px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .feedback-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #fff;
+      padding: 14px;
+      transition: border-color var(--transition), box-shadow var(--transition);
+      animation: fadeUp 240ms ease;
+    }
+
+    .feedback-card:hover {
+      border-color: #d1d5db;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    .feedback-title {
+      margin: 0 0 8px;
+      font-size: 0.98rem;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .feedback-summary {
+      margin: 0 0 10px;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    .feedback-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .badge {
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 4px 10px;
+      text-transform: capitalize;
+      letter-spacing: 0.2px;
+    }
+
+    .badge.positive {
+      color: var(--positive);
+      background: var(--positive-soft);
+    }
+
+    .badge.negative {
+      color: var(--negative);
+      background: var(--negative-soft);
+    }
+
+    .badge.neutral {
+      color: #4b5563;
+      background: var(--neutral-soft);
+    }
+
+    .status {
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      padding: 22px 16px;
+      color: var(--muted);
+      text-align: center;
+      background: #fafafa;
+    }
+
+    .loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #334155;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      border-top-color: #1f2937;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .retry-btn {
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #1f2937;
+      color: #fff;
+      padding: 9px 14px;
+      cursor: pointer;
+      transition: opacity var(--transition);
+    }
+
+    .retry-btn:hover {
+      opacity: 0.86;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .categories {
+        grid-template-columns: 1fr;
+      }
+
+      .feedback-list {
+        max-height: 55vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="dashboard">
+    <header class="header">
+      <h1>Feedback Admin Dashboard</h1>
+      <p>Track sentiment distribution and inspect user feedback in real time.</p>
+    </header>
+
+    <section class="categories" aria-label="Sentiment categories">
+      <button class="category-card positive" data-filter="positive" type="button" aria-pressed="false">
+        <div class="label">Positive</div>
+        <div class="value" id="positiveCount">0</div>
+      </button>
+      <button class="category-card negative" data-filter="negative" type="button" aria-pressed="false">
+        <div class="label">Negative</div>
+        <div class="value" id="negativeCount">0</div>
+      </button>
+      <button class="category-card neutral" data-filter="neutral" type="button" aria-pressed="false">
+        <div class="label">Neutral</div>
+        <div class="value" id="neutralCount">0</div>
+      </button>
+    </section>
+
+    <section class="list-section" aria-live="polite">
+      <div class="list-header">
+        <h2 id="listTitle">All Feedback</h2>
+        <span class="meta" id="listMeta">0 items</span>
+      </div>
+      <div class="feedback-list" id="feedbackList">
+        <div class="status">
+          <span class="loading">
+            <span class="spinner" aria-hidden="true"></span>
+            Loading feedback data...
+          </span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_ENDPOINT = "https://4tn7afy6zb.execute-api.eu-north-1.amazonaws.com/default/Admin-feedback-summarizer";
+
+    const state = {
+      activeFilter: null,
+      allItems: [],
+      bySentiment: {
+        positive: [],
+        negative: [],
+        neutral: []
+      }
+    };
+
+    const dom = {
+      cards: Array.from(document.querySelectorAll(".category-card")),
+      positiveCount: document.getElementById("positiveCount"),
+      negativeCount: document.getElementById("negativeCount"),
+      neutralCount: document.getElementById("neutralCount"),
+      listTitle: document.getElementById("listTitle"),
+      listMeta: document.getElementById("listMeta"),
+      feedbackList: document.getElementById("feedbackList")
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatDate(isoDate) {
+      if (!isoDate) return "Unknown date";
+      const parsed = new Date(isoDate);
+      if (Number.isNaN(parsed.getTime())) return "Invalid date";
+      return new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit"
+      }).format(parsed);
+    }
+
+    function createFeedbackCard(item) {
+      return `
+        <article class="feedback-card">
+          <p class="feedback-title">${escapeHtml(item.feedback || "No feedback text")}</p>
+          <p class="feedback-summary">${escapeHtml(item.summary || "No summary available")}</p>
+          <div class="feedback-meta">
+            <span class="badge ${escapeHtml(item.sentiment || "neutral").toLowerCase()}">${escapeHtml(item.sentiment || "neutral")}</span>
+            <span>${formatDate(item.createdAt)}</span>
+          </div>
+        </article>
+      `;
+    }
+
+    function updateCards() {
+      dom.positiveCount.textContent = String(state.bySentiment.positive.length);
+      dom.negativeCount.textContent = String(state.bySentiment.negative.length);
+      dom.neutralCount.textContent = String(state.bySentiment.neutral.length);
+
+      for (const card of dom.cards) {
+        const selected = card.dataset.filter === state.activeFilter;
+        card.classList.toggle("active", selected);
+        card.setAttribute("aria-pressed", String(selected));
+      }
+    }
+
+    function getFilteredItems() {
+      if (!state.activeFilter) return state.allItems;
+      return state.bySentiment[state.activeFilter] || [];
+    }
+
+    function updateListHeader(total) {
+      const titleMap = {
+        positive: "Positive Feedback",
+        negative: "Negative Feedback",
+        neutral: "Neutral Feedback"
+      };
+      dom.listTitle.textContent = titleMap[state.activeFilter] || "All Feedback";
+      dom.listMeta.textContent = `${total} ${total === 1 ? "item" : "items"}`;
+    }
+
+    function renderList() {
+      const items = getFilteredItems();
+      updateListHeader(items.length);
+
+      if (!items.length) {
+        dom.feedbackList.innerHTML = '<div class="status">No feedback found for this category.</div>';
+        return;
+      }
+
+      dom.feedbackList.innerHTML = items.map(createFeedbackCard).join("");
+    }
+
+    function showLoading() {
+      dom.feedbackList.innerHTML = `
+        <div class="status">
+          <span class="loading">
+            <span class="spinner" aria-hidden="true"></span>
+            Loading feedback data...
+          </span>
+        </div>
+      `;
+    }
+
+    function showError(message) {
+      dom.feedbackList.innerHTML = `
+        <div class="status">
+          <div>${escapeHtml(message)}</div>
+          <button class="retry-btn" id="retryBtn" type="button">Retry</button>
+        </div>
+      `;
+      const retryBtn = document.getElementById("retryBtn");
+      retryBtn?.addEventListener("click", loadFeedback);
+    }
+
+    function normalizeResponse(data) {
+      const positive = Array.isArray(data?.positive) ? data.positive : [];
+      const negative = Array.isArray(data?.negative) ? data.negative : [];
+      const neutral = Array.isArray(data?.neutral) ? data.neutral : [];
+
+      return {
+        positive: positive.map(item => ({ ...item, sentiment: item.sentiment || "positive" })),
+        negative: negative.map(item => ({ ...item, sentiment: item.sentiment || "negative" })),
+        neutral: neutral.map(item => ({ ...item, sentiment: item.sentiment || "neutral" }))
+      };
+    }
+
+    async function loadFeedback() {
+      showLoading();
+
+      try {
+        const response = await fetch(API_ENDPOINT, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        const normalized = normalizeResponse(data);
+
+        state.bySentiment = normalized;
+        state.allItems = [...normalized.positive, ...normalized.negative, ...normalized.neutral]
+          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+        updateCards();
+        renderList();
+      } catch (error) {
+        console.error("Failed to fetch admin feedback:", error);
+        showError("Unable to load feedback data. Please check API access and try again.");
+      }
+    }
+
+    function bindEvents() {
+      for (const card of dom.cards) {
+        card.addEventListener("click", () => {
+          const selectedFilter = card.dataset.filter;
+          state.activeFilter = state.activeFilter === selectedFilter ? null : selectedFilter;
+          updateCards();
+          renderList();
+        });
+      }
+    }
+
+    bindEvents();
+    loadFeedback();
+  </script>
+</body>
+</html>
