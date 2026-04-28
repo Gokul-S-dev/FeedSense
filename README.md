@@ -2,6 +2,7 @@
 
 Feedback Summarizer with AI is a full-stack feedback collection and analysis project. It lets users submit written feedback, sends that feedback to an AI-powered backend for summarization and sentiment analysis, stores or reads results from DynamoDB, and provides an admin dashboard for reviewing feedback by sentiment.
 
+![Cover Image](image/CoverImage.png)
 ## Project Overview
 
 The project currently has three main surfaces:
